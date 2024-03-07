@@ -1,3 +1,5 @@
 # Environment
 /chat_with_mysql
 
+# credentials
+.env
