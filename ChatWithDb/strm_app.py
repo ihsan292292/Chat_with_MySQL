@@ -59,11 +59,16 @@ def main():
             answer = full_chain.invoke({"question": question})
             st.write("Answer:", answer)
 
-            if st.button("Get Query"):
-                llm = ChatOpenAI()
-                query = sql_chain.invoke({"question":question})
-                st.write("Answer:", query)
-
+        if st.button("Get Query"):
+            llm = ChatOpenAI()
+            sql_chain = (
+                RunnablePassthrough.assign(schema=lambda _: schema)
+                | ChatPromptTemplate.from_template("Based on the table schema below, write a SQL query that would answer the user's question.\n{schema}\nQuestion: {question}\nSQL Query:")
+                | llm.bind(stop="\nSQL Result:")
+                | StrOutputParser()
+            )                                                               
+            query_schema = sql_chain.invoke({"question":question})
+            st.write("Query:",query_schema)
 
 if __name__ == "__main__":
     main()
